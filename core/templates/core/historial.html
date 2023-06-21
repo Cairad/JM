@@ -1,0 +1,38 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block contenido %}
+<link rel="stylesheet" href="{% static 'core/css/historial.css'%}">
+<!-- historial -->
+<body>
+    <div class="card">
+        <div class="row">
+            <div class="col-md-12 cart2">
+                <div class="title">
+                    <div class="row">
+                        <div class="col1"><b>Historial de Compras</b></div>
+                    </div>
+                </div>
+                {% for historial in productos_historial %}
+                <div class="row border-top border-bottom">
+                    <div class="row main align-items-center es">
+                        {% if historial.producto.foto %}
+                        <div class="col-2"><img class="img-fluid imc" src="{{ historial.producto.foto.url }}"></div>
+                        {% else %}
+                        <div class="col-2"><img src="{% static 'core/images/giphy.gif'%}" class="img-fluid" width="100" height="100"></div>
+                        {% endif %}
+                        <div class="col">
+                            <div class="row text-muted">{{ historial.producto.tipo.descripcion }}</div>
+                            <div class="row">{{ historial.producto.nombre }}</div>
+                        </div>
+                        <div class="col">$ {{ historial.producto.precio }}</div>
+                        <div class="col">{{ historial.fecha_compra }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+<!--end historial  -->
+{% endblock %}
