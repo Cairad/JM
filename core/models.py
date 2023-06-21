@@ -55,8 +55,3 @@ class Suscripcion(models.Model):
 
     def __str__(self):
         return self.nombrecompleto
-    
-class Seguimiento(models.Model):
-    codigo_seguimiento = models.CharField(max_length=100)
-    estado = models.CharField(max_length=100)
-    fecha_envio = models.DateField()

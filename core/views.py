@@ -1,6 +1,8 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from django.db.models import Sum, F , Q
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
 from .models import *
 from .forms import *
 from .carrito import *
@@ -49,24 +51,14 @@ def subscrito(request):
 
 @login_required
 def historial(request):
-    # Obtén los productos del historial que han sido comprados
-    productos_historial = Producto.objects.filter(historial__usuario=request.user)
 
-    # Pasa los productos a la plantilla
-    context = {'productos': productos_historial}
+    historial_compras = Historial.objects.filter(usuario=request.user)
+
+    context = {
+            'historial_compras': historial_compras
+        }
     return render(request, 'core/historial.html', context)
 
-def guardar_en_historial(request):
-    items_carrito = ItemCarrito.objects.filter(usuario=request.user)
-
-    for item in items_carrito:
-        historial = Historial(usuario=request.user, producto=item.producto, cantidad=item.cantidad)
-        historial.save()
-
-    # No es necesario eliminar los elementos del carrito, ya que se han movido al historial
-    items_carrito.update(usuario=None)
-
-    return redirect('historial')
 
 
 
@@ -92,17 +84,27 @@ def carrito(request):
         'precio_total': precio_total,
         'cantidad_seleccionada': cantidad_seleccionada,
     })
-    
+
+@csrf_exempt
 @login_required
 def comprar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     
     if producto.stock > 0:
+        # Realizar el procesamiento de pago con PayPal aquí
+        # Puedes utilizar la biblioteca de PayPal o API de pago según tu implementación
+        # Aquí se asume que el pago es exitoso
+        
         producto.stock -= 1
         producto.save()
-        guardar_en_historial(request)
         
-    return redirect("carrito")    
+        historial = Historial(usuario=request.user, producto=producto, cantidad=1)
+        historial.save()
+        
+        return HttpResponse(status=200)  # Se devuelve una respuesta exitosa al cliente
+    else:
+        return HttpResponse(status=400)  # Se devuelve una respuesta de error si el producto está agotado
+
 
 @login_required
 def devolvercarrito(request):
@@ -279,17 +281,3 @@ def eliminarproducto(request, id):
     producto.delete()
 
     return redirect(to="crud")
-
-
-
-def guardar_en_historial(request):
-    items_carrito = ItemCarrito.objects.filter(usuario=request.user)
-
-    for item in items_carrito:
-        historial = Historial(usuario=request.user, producto=item.producto, cantidad=item.cantidad, fecha_compra=datetime.now())
-        historial.save()
-
-    # No es necesario eliminar los elementos del carrito, ya que se han movido al historial
-    items_carrito.update(usuario=None)
-
-    return redirect('historial')

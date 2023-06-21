@@ -27,6 +27,5 @@ urlpatterns = [
     path('limpiar/', limpiar_carrito, name="CLS"),
     path('agregar/<id>/', agregaralcarrito, name="Add"),
     path('api-auth/', include('rest_framework.urls')),
-    path('guardar_en_historial/', guardar_en_historial, name='guardar_en_historial'),
 
 ]
