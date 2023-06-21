@@ -7,4 +7,3 @@ pillow
 django-jazzmin
 django-crispy-forms
 crispy-bootstrap4
-django-cors-headers
