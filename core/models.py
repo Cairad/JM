@@ -25,9 +25,11 @@ class Producto(models.Model):
         return self.nombre
     
 class Historial(models.Model):
+    foto = models.ImageField(null=True, blank=True)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
+    precio = models.PositiveIntegerField(default=0)
     fecha_compra = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

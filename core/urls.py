@@ -20,6 +20,7 @@ urlpatterns = [
     path('crud/', crud, name="crud"),
     path('agregar/', agregar, name="agregar"),
     path('comprar_producto/<id>/', comprar_producto, name='comprar_producto'),
+    path('comprar_productocart/<id>/', comprar_productocart, name='comprar_productocart'),
     path('modificar/<id>/', modificar, name="modificar"),
     path('eliminarproducto/<id>/', eliminarproducto, name="eliminarproducto"),
     path('eliminar/<id>/', eliminar_producto, name="Del"),

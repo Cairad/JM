@@ -14,12 +14,43 @@
                         <div class="col1"><b>Historial de Compras</b></div>
                     </div>
                 </div>
-                {% for compra in historial %}
-                <h3>Fecha de compra: {{ compra.fecha_compra }}</h3>
-                <h4>Producto: {{ compra.producto.nombre }}</h4>
-                <p>Cantidad: {{ compra.cantidad }}</p>
-                <!-- Otros detalles de la compra -->
-                {% endfor %}
+                {% for compra in historial_compras %}
+
+                <div class="row border-top border-bottom mb-3 mt-3" style="background-color: white;">
+                    <div class="row main align-items-center es">
+                        <div class="col">
+                            {% if compra.producto.foto %}
+                            <img src="{{ compra.producto.foto.url }}" class="img-fluid" width="100" height="100">
+                            {% else %}
+                            <img src="{% static 'core/images/giphy.gif'%}" class="img-fluid" width="100" height="100">
+                            {% endif %}
+                        </div>
+
+                        <div class="col">
+                            <div class="row text-muted">
+                                <p>{{ compra.producto.nombre }}</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <p>${{ compra.producto.precio }}</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            {{ compra.cantidad }}
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <p>{{ compra.fecha_compra }}</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% endfor %} <!-- Otros detalles de la compra -->
+
             </div>
         </div>
     </div>

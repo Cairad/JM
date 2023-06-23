@@ -151,17 +151,33 @@
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
                     confirmButtonText: 'Aceptar'
-
-
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        Swal.fire('Compra', ' realizada exitosamente', 'success').then(function () {
-                            window.location.href = "/limpiar/";
+                        // Realizar la solicitud al servidor para comprar el producto
+                        fetch(`/comprar_productocart/${id}/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': '{{ csrf_token }}'
+                            }
+                        }).then(response => {
+                            if (response.ok) {
+                                Swal.fire('Compra', 'Realizada exitosamente', 'success').then(function () {
+                                    window.location.href = "/productos/";
+                                });
+                            } else {
+                                Swal.fire('Error', 'No se pudo realizar la compra', 'error');
+                            }
                         })
+                            .catch(error => {
+                                Swal.fire('Error', 'Ocurrió un error al procesar la solicitud', 'error');
+                            });
                     }
                 });
-            })
+            });
         },
+
+
+
 
         onCancel(data) {
             Swal.fire({

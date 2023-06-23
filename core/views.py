@@ -52,14 +52,19 @@ def subscrito(request):
 @login_required
 def historial(request):
 
-    historial_compras = Historial.objects.filter(usuario=request.user)
+    historial_compras = Historial.objects.all()
 
-    context = {
+    datos = {
             'historial_compras': historial_compras
         }
-    return render(request, 'core/historial.html', context)
+    return render(request, 'core/historial.html', datos)
 
-
+#productosALL = Producto.objects.all()
+    datos = {
+        'listaProductos': productosALL
+    }
+    
+    return render(request, 'core/productos.html', datos)
 
 
 @login_required
@@ -85,25 +90,56 @@ def carrito(request):
         'cantidad_seleccionada': cantidad_seleccionada,
     })
 
-@csrf_exempt
+@login_required
+def eliminar_producto(request, id):
+    producto = Producto.objects.get(id=id)
+    ItemCarrito.objects.filter(producto=producto, usuario=request.user).delete()
+
+    # Eliminar el historial de compra asociado al producto eliminado
+    Historial.objects.filter(usuario=request.user, producto=producto).delete()
+
+    return redirect("carrito")
+
+
 @login_required
 def comprar_producto(request, id):
-    producto = get_object_or_404(Producto, id=id)
-    
+    producto = Producto.objects.get(id=id)
+
     if producto.stock > 0:
-        # Realizar el procesamiento de pago con PayPal aquí
-        # Puedes utilizar la biblioteca de PayPal o API de pago según tu implementación
-        # Aquí se asume que el pago es exitoso
-        
         producto.stock -= 1
         producto.save()
-        
-        historial = Historial(usuario=request.user, producto=producto, cantidad=1)
-        historial.save()
-        
-        return HttpResponse(status=200)  # Se devuelve una respuesta exitosa al cliente
-    else:
-        return HttpResponse(status=400)  # Se devuelve una respuesta de error si el producto está agotado
+
+        historial_carrito, created = Historial.objects.get_or_create(
+            producto=producto,
+            usuario=request.user,
+            defaults={'cantidad': 0}  # Establece una cantidad predeterminada de 0
+        )
+        historial_carrito.cantidad += 1  # Incrementa la cantidad en 1
+        historial_carrito.save()
+
+        Producto.objects.filter(id=id).update(stock=F('stock') - 1)
+
+    return redirect('carrito')
+
+def comprar_productocart(request, id):
+    producto = ItemCarrito.objects.get(id=id)
+
+    if producto.stock > 0:
+        producto.stock -= 1
+        producto.save()
+
+        historial_carrito, created = Historial.objects.get_or_create(
+            producto=producto,
+            usuario=request.user,
+            defaults={'cantidad': 0}  # Establece una cantidad predeterminada de 0
+        )
+        historial_carrito.cantidad += 1  # Incrementa la cantidad en 1
+        historial_carrito.save()
+
+        Producto.objects.filter(id=id).update(stock=F('stock') - 1)
+
+    return redirect('carrito')
+
 
 
 @login_required
@@ -144,12 +180,6 @@ def agregaralcarrito(request, id):
     request.session['total_precio'] = total_precio.get('producto__precio__sum', 0)
     
     return redirect('carrito')
-
-@login_required
-def eliminar_producto(request, id):
-    producto = Producto.objects.get(id=id)
-    ItemCarrito.objects.filter(producto=producto, usuario=request.user).delete()
-    return redirect("carrito")
 
 @login_required
 def restar_producto(request, id):
